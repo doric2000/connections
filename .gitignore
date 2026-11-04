@@ -1,0 +1,22 @@
+# Kept local, not published
+docs/source/
+docs/planli-project-review.he.md
+docs/planli-design-case.he.md
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editors
+.vscode/
+.idea/
+
+# Local Claude Code settings (personal)
+.claude/settings.local.json
+
+# Env / secrets (future-proofing)
+.env
+.env.*
+*.pem
+*.key
