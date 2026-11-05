@@ -4,6 +4,8 @@
 
 המערכת מאפשרת לאדם לפרסם פרויקט ותחומים שבהם הוא מחפש שותפים, ולאדם אחר לבדוק את הפרויקט, להציג את הרקע שלו, לשוחח ולהצטרף בהסכמה. ההשתתפות יכולה להיות ממוקדת, מתמשכת או גמישה. קורות חיים וצ׳אט אישי הם חלק מהגרסה הראשונה לפי ההערות האחרונות של המשתמש.
 
+> **עדכון 4.11.2026 — אושר כיוון:** Kubernetes (Oracle OKE עם תוכנית יציאה ל־GKE/LKE) מחליף את Cloud Run, עם GitOps (Helm ו־Argo CD) ותשתית כקוד (OpenTofu). הפירוט ב־[סביבות והרצה](./environments.he.md). הסעיפים שעודכנו מסומנים; כל אזכור ל־Cloud Run שנשאר במסמך מתאר את התכנון הקודם.
+
 ## הבסיס מהשיחה והחידודים החדשים
 
 | רכיב | הכיוון בגרסה האחרונה | פירוט מומלץ לבנייה |
@@ -15,7 +17,7 @@
 | התחברות | Supabase Auth | Google ודוא״ל; אימות JWT ב־Spring Security |
 | קבצים | Supabase Storage | תמונות ציבוריות בנפרד מקורות חיים פרטיים |
 | צ׳אט | Supabase Realtime, עם אפשרות לגישה ישירה להודעות | המלצה חדשה: כתיבת הודעות דרך Spring; Realtime להעברת אירועי עדכון |
-| פריסה | Docker, Google Cloud Run | שירות web ושירות api; מגבלות משאבים וחיבורים למסד |
+| פריסה | Docker, Kubernetes (Oracle OKE), Helm, Argo CD | שירות web ושירות api ו־CronJobs; namespace לכל סביבה; ראו [סביבות](./environments.he.md) |
 | אוטומציה | GitHub Actions | בדיקות, בנייה, migrations ופריסה מדורגת |
 | שירותים משלימים | Resend, PostHog, Sentry | דוא״ל, מדדי שימוש ותקלות; צמצום נתונים אישיים שנשלחים אליהם |
 
@@ -34,7 +36,7 @@
 | התחברות | TypeScript ו־Java | supabase-js, @supabase/ssr, OAuth2 Resource Server | התחברות, ניהול session ואימות אסימון בשרת |
 | צ׳אט בזמן אמת | TypeScript ו־SQL | Supabase Realtime Broadcast | עדכון לקוחות אחרי שינוי שנשמר במסד |
 | אפליקציה עתידית | TypeScript ו־TSX | Expo, React Native, Expo Router | ממשק לטלפונים, deep links ו־push |
-| תשתית | Dockerfile, YAML וקובצי תצורה | Docker, Cloud Run, GitHub Actions | אריזה, סביבות ופריסה |
+| תשתית | Dockerfile, YAML וקובצי תצורה | Docker, Kubernetes, Helm, Argo CD, OpenTofu, GitHub Actions | אריזה, תשתית כקוד, סביבות ופריסה |
 | בדיקות עתידיות | Java ו־TypeScript | JUnit, Testcontainers, Playwright | כללי מוצר, עסקאות ותהליכים בין משתמשים |
 
 Java היא שפת השרת. JavaScript דרך Node.js נדרשת גם להפעלת Next.js וכלי הבנייה, אך אין כאן שרת עסקי נוסף ב־Node. SQL הוא חלק משמעותי מהפרויקט, משום שאילוצי הנתונים וההרשאות אינם רק קוד Java.
@@ -184,11 +186,11 @@ Supabase ממליצה כיום על Broadcast עבור שינויי מסד. לע
 
 ## חיפוש וביצועים
 
-חיפוש ראשון ישלב תחום, skill IDs, שלב פרויקט ו־scope, עם חיפוש טקסט ב־PostgreSQL. נבחר text configuration לאחר בדיקת עברית ואנגלית; אין להניח שחיפוש אנגלי מספק ניתוח לשוני בעברית. בשלב ראשון אפשר להסתפק בחיפוש מילים פשוט ובסינון מובנה, ולבחון תוצאות עם המשתמשים.
+חיפוש ראשון ישלב תחום, skill IDs, שלב פרויקט ו־scope, עם חיפוש טקסט ב־PostgreSQL. נבחר text configuration לאחר בדיקת עברית ואנגלית; אין להניח שחיפוש אנגלי מספק ניתוח לשוני בעברית. בשלב ראשון אפשר להסתפק בחיפוש מילים פשוט ובסינון מובנה, ולבחון תוצאות עם המשתמשים. הערה (4.11.2026): היקף V1 שאושר בנוי על סינון מובנה בלבד, בלי חיפוש חכם; חיפוש מילים פשוט אינו נדרש.
 
 נבנה pagination בכל feed והיסטוריית הודעות, ונתכנן אינדקסים לפי שאילתות אמיתיות: בעל פרויקט, תחום פתוח, skills, פניות פעילות ושיחה לפי סדר. נבדוק EXPLAIN כשיש צורך. אין כרגע הצדקה להוסיף Redis, Elasticsearch או מערכת matching מורכבת.
 
-חיבור JDBC ישתמש ב־HikariCP קטן וב־SSL. ב־Cloud Run נבדוק Session Pooler כבסיס עם PostgreSQL JDBC, ולא נבחר transaction pooling רק משום שהשירות יכול לרדת לאפס. transaction mode דורש התאמות ובהן prepared statements; JDBC משתמש ב־prepareThreshold=0 במקרה הזה. [חיבורים ו־pooling](https://supabase.com/docs/guides/database/connecting-to-postgres)
+חיבור JDBC ישתמש ב־HikariCP קטן וב־SSL. מתוך האשכול נבדוק Session Pooler כבסיס עם PostgreSQL JDBC, ולא נבחר transaction pooling בלי צורך מוכח. transaction mode דורש התאמות ובהן prepared statements; JDBC משתמש ב־prepareThreshold=0 במקרה הזה. [חיבורים ו־pooling](https://supabase.com/docs/guides/database/connecting-to-postgres)
 
 תקציב חיבורים מחושב בקירוב כ־מספר instances כפול pool size, בתוספת migrations ושירותי Supabase. מגבלות גודל ו־max instances ייקבעו מתוך התקציב, כולל מרווח ל־deployments ולחריגות זמניות. המספרים ייקבעו לאחר מדידה בסביבת בדיקה.
 
@@ -196,7 +198,7 @@ Supabase ממליצה כיום על Broadcast עבור שינויי מסד. לע
 
 notifications ו־outbox_events ייווצרו יחד עם הפעולה העסקית. עדכון צוות אינו תלוי בזמינות Resend. worker מבצע ניסיון שליחה, שומר תוצאה ומנסה שוב בשגיאות זמניות עם idempotency. הבחירה הראשונה המוצעת היא Job מתוזמן שמרוקן outbox; נבחן זמן תגובה ועלויות לפני הוספת queue מנוהל.
 
-Cloud Run עם request-based billing אינו בסיס בטוח ל־thread או @Scheduled שצריך להמשיך לרוץ אחרי התשובה. אם נדרשת עבודה עצמאית, נשתמש ב־Cloud Run Job שמופעל באמצעות Cloud Scheduler, או נשנה במפורש את מודל ההפעלה. זו תוספת תפעולית לתוכנית המקורית, עם עלות שצריך לחשב. [כללי עבודה ברקע ב־Cloud Run](https://docs.cloud.google.com/run/docs/tips/general), [תזמון Jobs](https://docs.cloud.google.com/run/docs/execute/jobs-on-schedule)
+**עודכן 4.11.2026:** עבודות רקע (ריקון outbox, תזכורות והסלמה למנהל) ירוצו כ־`CronJob` של Kubernetes, בנפרד מתהליך ה־API, ויהיו idempotent כדי שהרצה כפולה לא תשלח פעמיים. ההנחיה הקודמת על Cloud Run Job ו־Cloud Scheduler כבר לא רלוונטית.
 
 הגבלת קצב לא תסתמך רק על זיכרון של instance, משום שכמה instances יכולים לפעול יחד. לבטא אפשר להחזיק תקציב פעולות למשתמש ב־PostgreSQL עם עדכון אטומי. נפריד מגבלות של פניות, הודעות והעלאות, ונקבע ערכים אחרי ניסוי. מגבלות Auth יוגדרו בנוסף אצל הספק. זו המלצת מימוש בסיסית; לא נוסיף Redis רק לצורך ההתחלה.
 
@@ -217,7 +219,11 @@ Connections/
   backend/
     api/                     Spring Boot עם Maven Wrapper
       src/main/resources/db/migration/
-  infrastructure/            Docker ופרטי פריסה
+  deploy/
+    helm/                    chart אחד עם values לכל סביבה
+    argocd/                  ApplicationSet וקובצי פריסה
+  infra/
+    opentofu/                הקמת רשת ואשכול (OCI)
   supabase/                  תצורה מקומית לשירותים המנוהלים
   docs/                      ארכיטקטורה, החלטות ותוכנית עבודה
   .github/workflows/          CI ופריסה
@@ -227,7 +233,7 @@ Connections/
 
 מקומית נריץ שירותי Supabase באמצעות CLI ו־Docker. Flyway יהיה המקור היחיד ל־DDL של המוצר; לא נערוך במקביל את אותה טבלה גם ב־Supabase migrations וגם ב־Flyway. התצורה של Supabase אינה סכמת מוצר נוספת. ב־local ניתן להריץ Flyway בעת ההפעלה; בסביבות פריסה נבצע migrations בצעד מבוקר ונשתמש ב־schema validation בשרת. [Supabase Local Development](https://supabase.com/docs/guides/local-development), [Spring Database Initialization](https://docs.spring.io/spring-boot/how-to/data-initialization.html)
 
-יהיו local, staging ו־production, עם כתובות, OAuth callbacks וסודות נפרדים. Cloud Run יריץ images של web ו־api. ב־GitHub Actions נעדיף Workload Identity Federation לפריסה ל־Google Cloud; סודות אחרים יישמרו במנהל סודות לפי הצורך. [פריסת Java ל־Cloud Run](https://docs.cloud.google.com/run/docs/quickstarts/build-and-deploy/deploy-java-service), [זהות לפריסות](https://docs.cloud.google.com/iam/docs/workload-identity-federation-with-deployment-pipelines)
+**עודכן 4.11.2026:** יהיו local (k3d), staging ו־production, עם כתובות, OAuth callbacks וסודות נפרדים. staging ו־production ירוצו כ־namespaces באשכול OKE עד הבטא; Argo CD מסנכרן כל סביבה מ־Git, והסודות נשמרים ב־Sealed Secrets. פירוט ב־[סביבות והרצה](./environments.he.md).
 
 ## התאוששות ועלויות
 
@@ -235,7 +241,7 @@ Connections/
 
 נכון לבדיקה היום Supabase Pro מתחיל ב־$25 לחודש; העלות בפועל תלויה גם במספר הפרויקטים, compute ותוספות. local ו־staging אינם בהכרח כלולים בעלות של production. Resend Free מציג 3,000 הודעות לחודש ו־100 ליום. [Supabase Pricing](https://supabase.com/pricing), [Resend Pricing](https://resend.com/pricing)
 
-לא נבטיח עלות כוללת של $0–10. Cloud Run מתומחר לפי אזור ומשאבים, והוצאות build, אחסון images, תעבורה ושירותים נוספים יכולות להיות נפרדות. תקציב התחלתי לתכנון בלבד הוא עשרות דולרים לחודש, ויאומת אחרי פריסת הניסוי. נגדיר התראות חיוב, max instances, מדידת cold start ומיקום קרוב למסד. התראת תקציב אינה חסימה אוטומטית של חיוב. [Cloud Run Pricing](https://cloud.google.com/run/pricing), [מגבלת instances](https://docs.cloud.google.com/run/docs/configuring/max-instances), [תקציבים והתראות](https://docs.cloud.google.com/billing/docs/how-to/budgets)
+**עודכן 4.11.2026:** עלות האשכול עד הבטא מתוכננת להיות $0 על Oracle Always Free, בתנאי שהמכסה זמינה; בבטא Supabase Pro (כ־$25 לחודש) ודומיין. לא נבטיח עלות, כי מכסות חינמיות משתנות (Oracle קיצצה מכסה ביוני 2026). נגדיר התראות תקציב בכל ספק; התראה אינה חוסמת חיוב. פירוט ב־[סביבות והרצה](./environments.he.md).
 
 ## החלטות שצריך לסגור לפני מימוש מלא
 

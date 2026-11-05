@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "mcp__.*use_figma",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"$CLAUDE_PROJECT_DIR/.claude/hooks/design-skill-reminder.py\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}

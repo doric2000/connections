@@ -25,6 +25,7 @@
 | [docs/project-page.he.md](docs/project-page.he.md) | עמוד פרויקט למועמד (אושר 12.10.2026) |
 | [docs/planli-design-case.he.md](docs/planli-design-case.he.md) | מקרה דוגמה ראשון (פלאן לי) |
 | [docs/architecture.he.md](docs/architecture.he.md), [docs/implementation-plan.he.md](docs/implementation-plan.he.md) | תכנון טכני ובנייה — **מוצע, לא מאושר לביצוע** |
+| [docs/environments.he.md](docs/environments.he.md) | סביבות local/staging/prod, Kubernetes, ספק וכלי GitOps — הכיוון אושר, הכלים מוצעים |
 | [docs/research.he.md](docs/research.he.md), [docs/planli-project-review.he.md](docs/planli-project-review.he.md) | מחקר ולקחים |
 | [docs/glossary.he.md](docs/glossary.he.md) | מונחים ומצבי תהליך — להשתמש בהם באופן עקבי |
 | `docs/source/gpt-conversation.txt` | תמלול השיחה המקורית עם GPT (עמודי PDF 1–87). ארכיון, לא מקור מחייב |
@@ -45,11 +46,11 @@
 - בעל הפרויקט שולט במה לחשוף ומתי; הצטרפות לא חושפת חומרי פרויקט אוטומטית.
 - קרדיט ציבורי על תרומה מאושרת הוא חלק קבוע מהמוצר; נפרד ממשוב על חוויית העבודה.
 - משוב סיום חובה (5 סעיפים 1–5 לכל צד), שני ציונים ציבוריים נפרדים (כמשתתף / כבעל פרויקט), דיווחים תקופתיים חסויים מול הצד השני.
-- V1: פרויקטים טכנולוגיים בלבד. מחוץ להיקף: תשלומים, גיוס עובדים, שוק פרילנסרים, התאמה אוטומטית מורכבת, מובייל.
+- V1: פרויקטים טכנולוגיים בלבד. מחוץ להיקף (אושר 4.11.2026): תשלומים, גיוס עובדים, שוק פרילנסרים, התאמה אוטומטית מורכבת, מובייל, חברות מסחריות (עד עו״ד), שינוי סיכום אחרי הצטרפות, מאגר שאלות לתפקיד. גילוי וניהול מצומצמים וחסימה ידנית — ראו product-brief, ״היקף V1״.
 - גרסה ראשונה: טיפול בפנייה בודדת (ללא דחייה מרוכזת).
 
-## כיוון טכני שנשמר (מוצע בלבד)
-Next.js/React/TS · Spring Boot (Java 21) כ־Modular Monolith · PostgreSQL + Auth + Storage + Realtime ב־Supabase · Flyway · OpenAPI · Cloud Run + GitHub Actions. פירוט ב־architecture. לא לממש ולא לנעול גרסאות לפני אישור.
+## כיוון טכני שנשמר (מוצע, חוץ מהסביבות)
+Next.js/React/TS · Spring Boot (Java 21) כ־Modular Monolith · PostgreSQL + Auth + Storage + Realtime ב־Supabase · Flyway · OpenAPI · Kubernetes (כיוון אושר 4.11.2026: Oracle OKE עם תוכנית יציאה, GitOps עם Helm ו־Argo CD, OpenTofu; ראו docs/environments.he.md) + GitHub Actions. פירוט ב־architecture. לא לממש ולא לנעול גרסאות לפני אישור.
 
 ## Skills בפרויקט (`.claude/skills/`)
 - `continue-spec` — להמשיך את האפיון מנקודת העצירה.

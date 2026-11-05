@@ -50,17 +50,17 @@
 | ניסוי | מה מוכיחים | כישלון שאסור להסתיר |
 | --- | --- | --- |
 | התחברות | Google או דוא״ל → session באתר → JWT מאומת ב־Spring | אסימון שפג, issuer אחר או אלגוריתם לא מתאים |
-| מסד ופריסה | Java מתקשר ל־Supabase דרך JDBC מסביבת Cloud Run לבדיקה | IPv4/IPv6, SSL, pool או prepared statements לא מתאימים |
+| מסד ופריסה | Java מתקשר ל־Supabase דרך JDBC מתוך אשכול OKE של staging, אחרי פריסה דרך Argo CD (עודכן 4.11.2026) | IPv4/IPv6, SSL, pool או prepared statements לא מתאימים |
 | קורות חיים | העלאה פרטית ושיתוף עם בעלים מורשה | אדם שלישי או פרופיל ציבורי מורידים CV |
 | שיחה | הודעה נשמרת, מגיע אירוע פרטי, ורענון משחזר היסטוריה | ניתוק, אירוע כפול, חסימה עם socket פתוח או הודעה כפולה |
 
 נבצע פריסת בדיקה קטנה בשלב הזה, לפני בניית שאר המוצר. היא אינה השקה לציבור. תוצר: קוד הוכחה ממוקד, תוצאות הניסויים ובחירות חיבור מתועדות. תנאי סיום: הכשלים מטופלים או שהארכיטקטורה עודכנה באופן מפורש.
 
-מדריכים: [Supabase SSR](https://supabase.com/docs/guides/auth/server-side/nextjs), [Spring JWT](https://docs.spring.io/spring-security/reference/servlet/oauth2/resource-server/jwt.html), [Database Connections](https://supabase.com/docs/guides/database/connecting-to-postgres), [Storage Permissions](https://supabase.com/docs/guides/storage/security/access-control), [Realtime](https://supabase.com/docs/guides/realtime/subscribing-to-database-changes), [Cloud Run Java](https://docs.cloud.google.com/run/docs/quickstarts/build-and-deploy/deploy-java-service).
+מדריכים: [Supabase SSR](https://supabase.com/docs/guides/auth/server-side/nextjs), [Spring JWT](https://docs.spring.io/spring-security/reference/servlet/oauth2/resource-server/jwt.html), [Database Connections](https://supabase.com/docs/guides/database/connecting-to-postgres), [Storage Permissions](https://supabase.com/docs/guides/storage/security/access-control), [Realtime](https://supabase.com/docs/guides/realtime/subscribing-to-database-changes), [Argo CD](https://argo-cd.readthedocs.io/en/stable/), [OKE](https://docs.oracle.com/en-us/iaas/Content/ContEng/home.htm).
 
 ## שלב 4 בסיס המאגר וסביבות
 
-נקים apps/web, backend/api וחבילות משותפות נחוצות. לא נייצר אפליקציית mobile ריקה רק כדי למלא תיקייה. ננעל כלים, נכתוב README ו־env.example ללא סודות, ונגדיר הרצה מקומית ותצורת staging.
+נקים apps/web, backend/api, `deploy/helm`, `deploy/argocd`, `infra/opentofu` וחבילות משותפות נחוצות. סביבת local תרוץ על k3d עם Argo CD מקומי (עודכן 4.11.2026, ראו [סביבות והרצה](./environments.he.md)). לא נייצר אפליקציית mobile ריקה רק כדי למלא תיקייה. ננעל כלים, נכתוב README ו־env.example ללא סודות, ונגדיר הרצה מקומית ותצורת staging.
 
 נגדיר migrations עם Flyway, תפקיד מסד ל־runtime ותפקיד לשינויי סכמות. CI יפעיל lint, typecheck, בדיקות רלוונטיות ובנייה. OpenAPI ייבדק, ויצירת לקוח TypeScript תהיה פעולה חוזרת שלא דורשת שינוי ידני של טיפוסים.
 
@@ -102,7 +102,7 @@
 
 בהתאם להחלטת V1 נבנה תרומה בסיסית: המשתתף מתאר מה עשה, מצרף ראיות, בעל הפרויקט מאשר, ונוצר תיאור Project Experience שניתן לשתף. היקף המנגנון יהיה קטן וגלוי, בלי הבטחה לאימות תעסוקה.
 
-תוצר: מערכת שניתן להפעיל בקהילה קטנה ולטפל בה. תנאי סיום: חסימה משפיעה בפועל, תקלה בדוא״ל לא מאבדת פעולה, והרשומות שאושרו מתארות עבודה אמיתית. [SMTP](https://supabase.com/docs/guides/auth/auth-smtp), [Resend Java](https://resend.com/docs/send-with-java), [Cloud Run Background Work](https://docs.cloud.google.com/run/docs/tips/general)
+תוצר: מערכת שניתן להפעיל בקהילה קטנה ולטפל בה. תנאי סיום: חסימה משפיעה בפועל, תקלה בדוא״ל לא מאבדת פעולה, והרשומות שאושרו מתארות עבודה אמיתית. [SMTP](https://supabase.com/docs/guides/auth/auth-smtp), [Resend Java](https://resend.com/docs/send-with-java), [Kubernetes CronJob](https://kubernetes.io/docs/concepts/workloads/controllers/cron-jobs/)
 
 ## שלב 9 בדיקות, התאוששות ופריסה
 
